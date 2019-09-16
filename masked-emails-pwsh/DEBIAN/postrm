@@ -1,0 +1,9 @@
+#!/bin/sh
+
+if [ -L /usr/local/bin/add-masked-email ]; then rm /usr/local/bin/add-masked-email; fi
+if [ -L /usr/local/bin/forward-masked-email ]; then rm /usr/local/bin/forward-masked-email; fi
+if [ -L /usr/local/bin/forward-masked-emails ]; then rm /usr/local/bin/forward-masked-emails; fi
+if [ -L /usr/local/bin/get-masked-emails ]; then rm /usr/local/bin/get-masked-emails; fi
+if [ -L /usr/local/bin/purge-masked-emails ]; then rm /usr/local/bin/purge-masked-emails; fi
+if [ -L /usr/local/bin/remove-masked-email ]; then rm /usr/local/bin/remove-masked-email; fi
+if [ -L /usr/local/bin/set-masked-email ]; then rm /usr/local/bin/set-masked-email; fi

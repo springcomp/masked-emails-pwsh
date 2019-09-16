@@ -1,0 +1,7 @@
+Package: masked-emails-pwsh
+Version: 1.0
+Section: base
+Priority: optional
+Architecture: all
+Maintainer: Maxime Labelle <springcom@users.noreply.github.com>
+Description: PowerShell Scripts for Masked-Emails

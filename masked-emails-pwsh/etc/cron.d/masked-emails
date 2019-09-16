@@ -1,0 +1,19 @@
+# MASKED-EMAILS
+#
+# /etc/crond.d/masked-emails-purge: crontab entries
+#
+# Removes expired messages from the MailDir-formatted
+# mailboxes associated with the specified domain.
+# A message is considered expired if it has been received
+# at a time earlier then the value of the 'AutoExpire'
+# configuration parameter.
+#
+# For instance, if 'AutoExpire' is set to '1d', all messages
+# that have been received more than 1 day ago at the time
+# of execution of this job will be deleted.
+#
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+0 0 * * * root purge-masked-emails -domain maskedbox.space
+*/10 * * * * root forward-masked-emails -domain maskedbox.space
+#

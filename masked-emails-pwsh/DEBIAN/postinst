@@ -1,0 +1,9 @@
+#!/bin/sh
+
+ln -s /usr/share/masked-emails/add-masked-email.ps1 /usr/local/bin/add-masked-email
+ln -s /usr/share/masked-emails/forward-masked-email.ps1 /usr/local/bin/forward-masked-email
+ln -s /usr/share/masked-emails/forward-masked-emails.ps1 /usr/local/bin/forward-masked-emails
+ln -s /usr/share/masked-emails/get-masked-emails.ps1 /usr/local/bin/get-masked-emails
+ln -s /usr/share/masked-emails/purge-masked-emails.ps1 /usr/local/bin/purge-masked-emails
+ln -s /usr/share/masked-emails/remove-masked-email.ps1 /usr/local/bin/remove-masked-email
+ln -s /usr/share/masked-emails/set-masked-email-forwarding.ps1 /usr/local/bin/set-masked-email
