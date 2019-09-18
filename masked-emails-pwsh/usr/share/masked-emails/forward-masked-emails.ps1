@@ -67,6 +67,7 @@ PROCESS
 				-WhatIf:$whatIf `
 				-Verbose:$verbose
 	}
-	Add-Content -Path "/tmp/purge-masked-emails.log" -Value "$(Get-Date): forward-masked-emails.ps1 was run."
+
+	Set-Content -Path "/tmp/forward-masked-emails.log" -Value "$(Get-Date): forward-masked-emails.ps1 was run."
 }
 
