@@ -1,14 +1,15 @@
 image: ubuntu
 
 before_build:
-  - pwsh: sudo apt-get update
-  - pwsh: sudo apt-get install -y fakeroot
+  - sh: sudo apt-get update
+  - sh: sudo apt-get install -y fakeroot dos2unix
 
 build_script:
-  - pwsh: chmod 755 /home/appveyor/projects/masked-emails-pwsh/masked-emails-pwsh/DEBIAN/config
-  - pwsh: chmod 755 /home/appveyor/projects/masked-emails-pwsh/masked-emails-pwsh/DEBIAN/postinst
-  - pwsh: chmod 755 /home/appveyor/projects/masked-emails-pwsh/masked-emails-pwsh/DEBIAN/postrm
-  - pwsh: fakeroot dpkg --build /home/appveyor/projects/masked-emails-pwsh/masked-emails-pwsh
+  - sh: dos2unix /home/appveyor/projects/masked-emails-pwsh/masked-emails-pwsh/etc/cron.d/masked-emails
+  - sh: chmod 755 /home/appveyor/projects/masked-emails-pwsh/masked-emails-pwsh/DEBIAN/config
+  - sh: chmod 755 /home/appveyor/projects/masked-emails-pwsh/masked-emails-pwsh/DEBIAN/postinst
+  - sh: chmod 755 /home/appveyor/projects/masked-emails-pwsh/masked-emails-pwsh/DEBIAN/postrm
+  - sh: fakeroot dpkg --build /home/appveyor/projects/masked-emails-pwsh/masked-emails-pwsh
 
 artifacts:
   - path: '**\*deb'
