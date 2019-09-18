@@ -27,92 +27,93 @@
 
 [CmdletBinding()]
 param(
-	[Parameter(Mandatory = $true, Position = 0)]
-	[Alias("Address")]
-	[Alias("Username")]
-	[string]$email,
+    [Parameter(Mandatory = $true, Position = 0)]
+    [Alias("Address")]
+    [Alias("Username")]
+    [string]$email,
 
-	[Parameter(Mandatory = $true, Position = 1)]
-	[Alias("Hash")]
-	[string]$passwordHash,
+    [Parameter(Mandatory = $true, Position = 1)]
+    [Alias("Hash")]
+    [string]$passwordHash,
 
-	[Alias("ConfigurationFile")]
-	[Alias("ConfigFile")]
-	[string]$config = "/etc/masked-emails.conf",
+    [Alias("ConfigurationFile")]
+    [Alias("ConfigFile")]
+    [string]$config = "/etc/masked-emails.conf",
 
-	[Switch]$force,
-	[Switch]$whatIf
+    [Switch]$force,
+    [Switch]$whatIf
 )
 
-BEGIN
-{
-	. /usr/share/masked-emails/scripts/Read-Configuration.ps1
-	. /usr/share/masked-emails/scripts/Add-MailLocationRootConfiguration.ps1
+BEGIN {
+    . /usr/share/masked-emails/scripts/Read-Configuration.ps1
+    . /usr/share/masked-emails/scripts/Add-MailLocationRootConfiguration.ps1
 
-	$pos = $email.IndexOf("@")
-	if ($pos -eq -1){
-		Write-Host "The specified mailbox address is not a valid email address." -Foreground Red
-		Exit
-	}
+    $pos = $email.IndexOf("@")
+    if ($pos -eq -1) {
+        Write-Host "The specified mailbox address is not a valid email address." -Foreground Red
+        Exit
+    }
 
-	$username = $email.Substring(0, $pos)
-	$domain = $email.Substring($pos + 1)
+    $username = $email.Substring(0, $pos)
+    $domain = $email.Substring($pos + 1)
 }
-PROCESS
-{
-	$configuration = Read-Configuration -Path $config
-	$configuration["Domain"] = $domain
+PROCESS {
+    $configuration = Read-Configuration -Path $config
+    $configuration["Domain"] = $domain
 
-	# Determine the mailbox root path
-	# And the user-specific relative path containing messages
+    # Determine the mailbox root path
+    # And the user-specific relative path containing messages
 
-	Add-MailLocationRootConfiguration -Config $configuration
+    Add-MailLocationRootConfiguration -Config $configuration
 
-	$mailLocationRoot = $configuration["MailLocationRoot"]
-	$relativeUserPath = $configuration["RelativeUserPath"]
+    $mailLocationRoot = $configuration["MailLocationRoot"]
+    $relativeUserPath = $configuration["RelativeUserPath"]
 
-	# Add an entry to the postfix-accounts.cf file
-	# if it does not already exist
+    # Add an entry to the postfix-accounts.cf file
+    # if it does not already exist
 
-	$config = Join-Path -Path ($configuration["MailServerRoot"]) -ChildPath "config"
-	$passdb = Join-Path -Path $config -ChildPath "postfix-accounts.cf"
+    $config = Join-Path -Path ($configuration["MailServerRoot"]) -ChildPath "config"
+    $passdb = Join-Path -Path $config -ChildPath "postfix-accounts.cf"
 
-	$exists = Get-Content -Path $passdb |? {
-		$_.StartsWith($email)
-	} | Select-Object -First 1
+    $exists = Get-Content -Path $passdb | ? {
+        $_.StartsWith($email)
+    } | Select-Object -First 1
 
 
-	if ($exists -ne $null){
-		Write-Host "The mailbox for $($email) already exists." -ForegroundColor Red
-		return
-	}
+    if ($exists -ne $null) {
+        Write-Host "The mailbox for $($email) already exists." -ForegroundColor Red
+        return
+    }
 
-	$pwd = "$($email)|{SSHA512}$($passwordHash)"
-	$pwdMessage =  "$passdb -> `"$pwd`"";
+    $pwd = "$($email)|{SSHA512}$($passwordHash)"
+    $pwdMessage = "$passdb -> `"$pwd`"";
 
-	if ($whatIf.IsPresent){
-		Write-Host $pwdMessage -ForegroundColor Gray
-	} else {
-		Add-Content -Path $passdb -Value $pwd
-		Write-Verbose $pwdMessage
-	}
+    if ($whatIf.IsPresent) {
+        Write-Host $pwdMessage -ForegroundColor Gray
+    }
+    else {
+        Add-Content -Path $passdb -Value $pwd
+        Write-Verbose $pwdMessage
+    }
 
-	if ($force.IsPresent){
+    if ($force.IsPresent) {
 		# Restart mail server
+
+        $root = $configuration["MailServerRoot"]
+        $compose = Join-Path -Path $root -ChildPath "docker-compose.yml"
+        $up = "pushd $root; /usr/local/bin/docker-compose --file $compose up --detach; popd"
+        $down = "/usr/local/bin/docker-compose --file $compose down"
 	
-		$compose = Join-Path -Path ($configuration["MailServerRoot"]) -ChildPath "docker-compose.yml"
-		$up = "/usr/local/bin/docker-compose --file $compose up --detach"
-		$down = "/usr/local/bin/docker-compose --file $compose down"
-	
-		if ($whatIf.IsPresent){
-			Write-Host $down
-			Write-Host $up
-		} else {
-			Write-Verbose $down
-			Invoke-Expression $down
-			Write-Verbose $up
-			Invoke-Expression $up
-		}
-	}
+        if ($whatIf.IsPresent) {
+            Write-Host $down
+            Write-Host $up
+        }
+        else {
+            Write-Verbose $down
+            Invoke-Expression $down
+            Write-Verbose $up
+            Invoke-Expression $up
+        }
+    }
 }
 

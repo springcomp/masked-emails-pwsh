@@ -102,9 +102,10 @@ PROCESS
 
 		# Restart mail server
 
-		$compose = Join-Path -Path ($configuration["MailServerRoot"]) -ChildPath "docker-compose.yml"
-		$up = "/usr/local/bin/docker-compose --file $compose up --detach"
-		$down = "/usr/local/bin/docker-compose --file $compose down"
+        $root = $configuration["MailServerRoot"]
+        $compose = Join-Path -Path $root -ChildPath "docker-compose.yml"
+        $up = "pushd $root; /usr/local/bin/docker-compose --file $compose up --detach; popd"
+        $down = "/usr/local/bin/docker-compose --file $compose down"
 
 		if ($whatIf.IsPresent){
 			Write-Host $down
