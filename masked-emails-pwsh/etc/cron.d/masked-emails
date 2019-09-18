@@ -12,8 +12,9 @@
 # that have been received more than 1 day ago at the time
 # of execution of this job will be deleted.
 #
+SHELL=/bin/sh
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
-
+#
 @daily          root purge-masked-emails -domain maskedbox.space
 */10 * * * *    root forward-masked-emails -domain maskedbox.space
 #
