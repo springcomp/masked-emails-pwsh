@@ -64,11 +64,12 @@ The masked email feature intalls the following two cron jobs:
 # For instance, if 'AutoExpire' is set to '1d', all messages
 # that have been received more than 1 day ago at the time
 # of execution of this job will be deleted.
-# 
+#
+SHELL=/bin/sh
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
-
-0 0 * * * purge-masked-emails -domain example.com
-*/10 * * * * forward-masked-emails -domain example.com
+#
+@daily         root purge-masked-emails -domain example.com
+*/10 * * * *   root forward-masked-emails -domain example.com
 #
 ```
 
