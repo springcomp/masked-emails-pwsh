@@ -3,9 +3,14 @@ image: ubuntu
 before_build:
   - sh: sudo apt-get update
   - sh: sudo apt-get install -y fakeroot dos2unix
+  - sh: dos2unix /home/appveyor/projects/masked-emails-pwsh/masked-emails-pwsh/DEBIAN/config
+  - sh: dos2unix /home/appveyor/projects/masked-emails-pwsh/masked-emails-pwsh/DEBIAN/postinst
+  - sh: dos2unix /home/appveyor/projects/masked-emails-pwsh/masked-emails-pwsh/DEBIAN/postrm
+  - sh: dos2unix /home/appveyor/projects/masked-emails-pwsh/masked-emails-pwsh/DEBIAN/prerm
+  - sh: dos2unix /home/appveyor/projects/masked-emails-pwsh/masked-emails-pwsh/etc/cron.d/masked-emails
+  - sh: dos2unix /home/appveyor/projects/masked-emails-pwsh/masked-emails-pwsh/etc/init.d/masked-emails
 
 build_script:
-  - sh: dos2unix /home/appveyor/projects/masked-emails-pwsh/masked-emails-pwsh/etc/cron.d/masked-emails
   - sh: chmod 755 /home/appveyor/projects/masked-emails-pwsh/masked-emails-pwsh/DEBIAN/config
   - sh: chmod 755 /home/appveyor/projects/masked-emails-pwsh/masked-emails-pwsh/DEBIAN/postinst
   - sh: chmod 755 /home/appveyor/projects/masked-emails-pwsh/masked-emails-pwsh/DEBIAN/postrm
@@ -19,7 +24,7 @@ deploy:
   provider: AzureBlob
   storage_account_name: masked
   storage_access_key:
-    secure: xgb9tBmhTWgMpmwhpauTdDsVrSezLCXBp9EWwN9rNvAIdSMIEbBwpHmnjushM5oex5ipUwDK9f8+VIZs3QIp12KFMeTDmtLW2tFcycSl3tUK3Kf4+sPGvGene6ApQvHu
+    secure: ZC0PpKsfUYg3ffTy+l2I4y6tluKtxMuovqxehGwpb2WoH5MRJaB5jGwfVD0g6BdLwVnO+SwQU5smBrt9kluDQwBHFjCafOAxpPxigv61hf/zazMjwIWckcE3sF57lcn2
   container: debian
   artifact: masked-emails-pwsh.deb
   unzip: false
