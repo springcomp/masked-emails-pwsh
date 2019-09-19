@@ -75,6 +75,6 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 ## How-to Install
 
 ```
-curl -o masked-emails-pwsh https://masked.blob.core.windows.net/debian/masked-emails.pwsh.deb
-dpkg -i masked-emails-pwsh.deb
+~# curl -o masked-emails-pwsh https://masked.blob.core.windows.net/debian/masked-emails.pwsh.deb
+~# dpkg -i masked-emails-pwsh.deb
 ```
