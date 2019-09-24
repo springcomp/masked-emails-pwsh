@@ -22,7 +22,7 @@ deploy:
   provider: AzureBlob
   storage_account_name: masked
   storage_access_key:
-    secure: ZC0PpKsfUYg3ffTy+l2I4y6tluKtxMuovqxehGwpb2WoH5MRJaB5jGwfVD0g6BdLwVnO+SwQU5smBrt9kluDQwBHFjCafOAxpPxigv61hf/zazMjwIWckcE3sF57lcn2
+    secure: HmiE9NOgUN/dsziSQGtM6nntxKrwGYQUdCeUf0DusKrtYUUwYS+oQPHkBd/kRPzETtVFZbaqnDPcYJ8A4qED2LIrmAZzNSDbaE5Ix+gyC22368xpSGT40dosTpoqpA2Y
   container: debian
   artifact: masked-emails-pwsh.deb
   unzip: false
