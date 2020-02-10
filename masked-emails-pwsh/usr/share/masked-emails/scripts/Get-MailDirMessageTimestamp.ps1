@@ -9,11 +9,6 @@ Function Get-MailDirMessageTimestamp
 
 	BEGIN
 	{
-		Function Get-HostName{
-			$hostName = [Net.Dns]::GetHostName()
-			Write-Output $hostName
-		}
-
 		Function ConvertFrom-UnixTimestamp{
 			[CmdletBinding()]
 			param([Int64]$timestamp)
@@ -21,8 +16,7 @@ Function Get-MailDirMessageTimestamp
 			Write-Output $epoch.AddSeconds($timestamp)
 		}
 
-		$hostName = Get-HostName
-		$messagePattern = "(?<time>[1-9][0-9]{9})\..+\.$($hostName),S=.*"
+		$messagePattern = "(?<time>[1-9][0-9]{9})\..+\.(?<hostName>[^,]+),S=.*"
 		$messageRegex = [regex] $messagePattern
 
 	}
