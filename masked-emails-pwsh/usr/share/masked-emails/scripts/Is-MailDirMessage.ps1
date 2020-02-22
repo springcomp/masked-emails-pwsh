@@ -11,8 +11,7 @@ Function Is-MailDirMessage
 	{
 		# https://cr.yp.to/proto/maildir.html
 
-		$messagePattern = "(?<time>[1-9][0-9]{9})\..+\.mail,S=.*"
-		$messageRegex = [regex] $messagePattern
+		$messagePattern = "(?<time>[1-9][0-9]{9})\..+\.(?<hostName>[^,]+),S=.*"
 	}
 	PROCESS
 	{
