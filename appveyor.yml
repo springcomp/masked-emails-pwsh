@@ -12,6 +12,7 @@ build_script:
   - sh: dos2unix /home/appveyor/projects/masked-emails-pwsh/masked-emails-pwsh/DEBIAN/postrm
   - sh: chmod 755 /home/appveyor/projects/masked-emails-pwsh/masked-emails-pwsh/DEBIAN/postrm
   - sh: dos2unix /home/appveyor/projects/masked-emails-pwsh/masked-emails-pwsh/etc/cron.d/masked-emails
+  - sh: chmod +x /home/appveyor/projects/masked-emails-pwsh/masked-emails-pwsh/usr/share/masked-emails/*.ps1
   - sh: fakeroot dpkg --build /home/appveyor/projects/masked-emails-pwsh/masked-emails-pwsh
 
 artifacts:
