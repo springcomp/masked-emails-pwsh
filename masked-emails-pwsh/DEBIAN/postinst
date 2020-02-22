@@ -7,3 +7,4 @@ ln -s /usr/share/masked-emails/get-masked-emails.ps1 /usr/local/bin/get-masked-e
 ln -s /usr/share/masked-emails/purge-masked-emails.ps1 /usr/local/bin/purge-masked-emails
 ln -s /usr/share/masked-emails/remove-masked-email.ps1 /usr/local/bin/remove-masked-email
 ln -s /usr/share/masked-emails/set-masked-email-forwarding.ps1 /usr/local/bin/set-masked-email
+ln -s /usr/share/masked-emails/set-masked-email-password.ps1 /usr/local/bin/change-masked-email-password

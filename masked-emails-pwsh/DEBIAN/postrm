@@ -7,3 +7,4 @@ if [ -L /usr/local/bin/get-masked-emails ]; then rm /usr/local/bin/get-masked-em
 if [ -L /usr/local/bin/purge-masked-emails ]; then rm /usr/local/bin/purge-masked-emails; fi
 if [ -L /usr/local/bin/remove-masked-email ]; then rm /usr/local/bin/remove-masked-email; fi
 if [ -L /usr/local/bin/set-masked-email ]; then rm /usr/local/bin/set-masked-email; fi
+if [ -L /usr/local/bin/change-masked-email-password ]; then rm /usr/local/bin/change-masked-email-password; fi
