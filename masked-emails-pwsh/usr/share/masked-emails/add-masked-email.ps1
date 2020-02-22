@@ -97,12 +97,13 @@ PROCESS {
     }
 
     if ($force.IsPresent) {
-		# Restart mail server
+
+	# Restart mail server
 
         $root = $configuration["MailServerRoot"]
         $compose = Join-Path -Path $root -ChildPath "docker-compose.yml"
         $up = "pushd $root; /usr/local/bin/docker-compose --file $compose up --detach; popd"
-        $down = "/usr/local/bin/docker-compose --file $compose down"
+        $down = "pushd $root; /usr/local/bin/docker-compose --file $compose down; popd"
 	
         if ($whatIf.IsPresent) {
             Write-Host $down

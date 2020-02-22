@@ -23,7 +23,7 @@
 ##      'AutoExpire' configuration parameter.
 ##
 ##	The forwarding daemon considers the list of
-##	user mailboxed for which to attempt forwarding
+##	user mailboxes for which to attempt forwarding
 ##	messages to an alternate email address.
 ##
 ##	For a disabled address, the forwarding daemon
@@ -37,9 +37,9 @@
 ##     is '/etc/masked-emails.conf'.
 ##
 ##     The CmdLet needs the following parameters:
-##      - MailLocation : (see -Domain above)
+##      - MailLocationRoot
 ##
-## -WhatIf : does not actually add a user
+## -WhatIf : does not actually enable / disable forwarding
 ##     but prints what the script would do instead.
 ##
 ## -Verbose : includes more detailed logs to the console.
