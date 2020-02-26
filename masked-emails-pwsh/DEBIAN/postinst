@@ -8,3 +8,4 @@ ln -s /usr/share/masked-emails/purge-masked-emails.ps1 /usr/local/bin/purge-mask
 ln -s /usr/share/masked-emails/remove-masked-email.ps1 /usr/local/bin/remove-masked-email
 ln -s /usr/share/masked-emails/set-masked-email-forwarding.ps1 /usr/local/bin/set-masked-email
 ln -s /usr/share/masked-emails/set-masked-email-password.ps1 /usr/local/bin/change-masked-email-password
+ln -s /usr/share/masked-emails/send-email.ps1 /usr/local/bin/send-email
