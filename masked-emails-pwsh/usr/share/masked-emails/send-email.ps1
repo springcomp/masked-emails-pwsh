@@ -87,6 +87,11 @@ BEGIN
 
     }
 
+    ## Retrieve the domain associated with the mailbox
+
+	$username = $email.Substring(0, $pos)
+	$domain = $email.Substring($pos + 1)
+
     ## Create a temporary file to format an email message
 
     $messagePath = [IO.Path]::GetTempFileName()
@@ -96,7 +101,7 @@ BEGIN
 PROCESS
 {
     Set-Content -Path $messagePath -Value @"
-From: Masked Emails <no-reply@maskedbox.space>
+From: Masked Emails <no-reply@$domain>
 To: $recipient
 Subject: $subject
 Date: $rfc822date
