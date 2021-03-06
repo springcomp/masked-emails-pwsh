@@ -90,5 +90,6 @@ PROCESS {
     else {
         Write-Verbose $command
         Invoke-Expression $command
+	[Threading.Thread]::Sleep(2000)
     }
 }
