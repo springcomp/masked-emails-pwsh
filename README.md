@@ -22,6 +22,8 @@ Those scripts create or remove a mailbox for use by Postfix and Dovecot.
 In order for one of these mailboxes to be considered a 'masked email' address, it is
 necessary to run the `set-masked-email` script.
 
+Those scripts use the mail server provided [setup script](https://github.com/docker-mailserver/docker-mailserver/wiki/setup.sh) `setup.sh` to add or remove an email address. This script must be modified to include the `-y` no-prompt confirmation switch to the `delmailuser` command.
+
 - set-masked-email : adds metadata for the Purge Masked Emails and Forward Masked Emails cron jobs.
 A masked email is a MailDir mailbox containing a `masked-email.json` file that contains the following data:
 
@@ -79,3 +81,5 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 ~# wget https://masked.blob.core.windows.net/debian/masked-emails-pwsh.deb
 ~# dpkg -i masked-emails-pwsh.deb
 ```
+
+**Warning**: please, do not forget to modify the mail server provider setup script as instructed to in the description above.

@@ -62,72 +62,43 @@ PROCESS
 	$configuration["Domain"] = $domain
 
 	# Determine the mailbox root path
-	# And the user-specific relative path containing messages
 
-	Add-MailLocationRootConfiguration -Config $configuration
+	$root = $configuration["MailServerRoot"]
 
-	$mailLocationRoot = $configuration["MailLocationRoot"]
-	$relativeUserPath = $configuration["RelativeUserPath"]
+    $config = Join-Path -Path $root -ChildPath "config"
+    $passdb = Join-Path -Path $config -ChildPath "postfix-accounts.cf"
 
-	# Remove entry from passwd file
+    $exists = Get-Content -Path $passdb | ? {
+        $_.StartsWith($email)
+    } | Select-Object -First 1
 
-	$config = Join-Path -Path ($configuration["MailServerRoot"]) -ChildPath "config"
-	$passdb = Join-Path -Path $config -ChildPath "postfix-accounts.cf"
+    if (-not $exists) {
+        Write-Host "The mailbox for $($email) does not exist." -ForegroundColor Red
+        return
+    }
 
-	$passdbTemp = "/tmp/postfix-accounts.cf"
+	# Remove email address
 
-	Get-Content -Path $passdb |? {
-		$passdbMessage = "$passdb X--> `"$_`""
-		if ($_.StartsWith($email)){
-			if ($whatIf.IsPresent){
-				Write-Host $passdbMessage
-			} else {
-				Write-Verbose $passdbMessage
-			}
-			return $false
-		} else {
-			return $true
-		}
-	} |% {
-		if (-not $whatIf.IsPresent){
-			Add-Content -Path $passdbTemp -Value $_
-		}
+    $setup = Join-Path -Path $root -ChildPath "setup.sh"
+    $command = "pushd $root; $setup email del $email; popd"
+
+	if ($whatIf.IsPresent){
+		Write-Host $command
+	} else {
+		Invoke-Expression $command
+		Write-Verbose $command
 	}
 
-	if (-not $whatIf.IsPresent){
-		Move-Item -Path $passdbTemp -Destination $passdb -Force
-	}
+	# Remove the MailDir mailbox
 
-	if ($force.IsPresent){
-
-		# Restart mail server
-
-        $root = $configuration["MailServerRoot"]
-        $compose = Join-Path -Path $root -ChildPath "docker-compose.yml"
-        $up = "pushd $root; /usr/local/bin/docker-compose --file $compose up --detach; popd"
-        $down = "/usr/local/bin/docker-compose --file $compose down"
-
+	$mailbox = Join-Path -Path $mailLocationRoot -ChildPath $username
+	if (Test-Path -Path $mailbox){
+		$mailboxCommand = "rm -rf `"$mailbox`""
 		if ($whatIf.IsPresent){
-			Write-Host $down
-			Write-Host $up
+			Write-Host $mailboxCommand -ForegroundColor Gray
 		} else {
-			Write-Verbose $down
-			Invoke-Expression $down
-			Write-Verbose $up
-			Invoke-Expression $up
-		}
-
-		# Remove the MailDir mailbox
-
-		$mailbox = Join-Path -Path $mailLocationRoot -ChildPath $username
-		if (Test-Path -Path $mailbox){
-			$mailboxCommand = "rm -rf `"$mailbox`""
-			if ($whatIf.IsPresent){
-				Write-Host $mailboxCommand -ForegroundColor Gray
-			} else {
-				Write-Verbose $mailboxCommand
-				Invoke-Expression $mailboxCommand
-			}
+			Write-Verbose $mailboxCommand
+			Invoke-Expression $mailboxCommand
 		}
 	}
 }

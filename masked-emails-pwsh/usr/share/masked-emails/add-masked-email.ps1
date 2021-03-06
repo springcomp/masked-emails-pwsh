@@ -62,17 +62,13 @@ PROCESS {
     $configuration["Domain"] = $domain
 
     # Determine the mailbox root path
-    # And the user-specific relative path containing messages
 
-    Add-MailLocationRootConfiguration -Config $configuration
-
-    $mailLocationRoot = $configuration["MailLocationRoot"]
-    $relativeUserPath = $configuration["RelativeUserPath"]
+    $root = $configuration["MailServerRoot"]
 
     # Add an entry to the postfix-accounts.cf file
     # if it does not already exist
 
-    $config = Join-Path -Path ($configuration["MailServerRoot"]) -ChildPath "config"
+    $config = Join-Path -Path $root -ChildPath "config"
     $passdb = Join-Path -Path $config -ChildPath "postfix-accounts.cf"
 
     $exists = Get-Content -Path $passdb | ? {
@@ -80,41 +76,19 @@ PROCESS {
     } | Select-Object -First 1
 
 
-    if ($exists -ne $null) {
+    if ($null -ne $exists) {
         Write-Host "The mailbox for $($email) already exists." -ForegroundColor Red
         return
     }
 
-    $pwd = "$($email)|{SSHA512}$($passwordHash)"
-    $pwdMessage = "$passdb -> `"$pwd`"";
-
+    $setup = Join-Path -Path $root -ChildPath "setup.sh"
+    $command = "pushd $root; $setup email add $email $passwordHash; popd"
+	
     if ($whatIf.IsPresent) {
-        Write-Host $pwdMessage -ForegroundColor Gray
+        Write-Host $command -ForegroundColor Gray
     }
     else {
-        Add-Content -Path $passdb -Value $pwd
-        Write-Verbose $pwdMessage
-    }
-
-    if ($force.IsPresent) {
-
-	# Restart mail server
-
-        $root = $configuration["MailServerRoot"]
-        $compose = Join-Path -Path $root -ChildPath "docker-compose.yml"
-        $up = "pushd $root; /usr/local/bin/docker-compose --file $compose up --detach; popd"
-        $down = "pushd $root; /usr/local/bin/docker-compose --file $compose down; popd"
-	
-        if ($whatIf.IsPresent) {
-            Write-Host $down
-            Write-Host $up
-        }
-        else {
-            Write-Verbose $down
-            Invoke-Expression $down
-            Write-Verbose $up
-            Invoke-Expression $up
-        }
+        Write-Verbose $command
+        Invoke-Expression $command
     }
 }
-
