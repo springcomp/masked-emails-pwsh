@@ -173,7 +173,7 @@ PROCESS
 				if ($whatIf.IsPresent){
 					Write-Host $reason -ForegroundColor Gray
 				} else {
-					Remove-Item -Path $path
+					Remove-Item -Path $path -Force
 					Write-Verbose $reason
 				}
 			}
