@@ -95,7 +95,7 @@ BEGIN
     ## Create a temporary file to format an email message
 
     $messagePath = [IO.Path]::GetTempFileName()
-    $rfc822date = (Get-Date -Format "ddd, dd MM yyyy HH:mm:ss K")
+    $rfc822date = (Get-Date -Format "ddd, dd MMM yyyy HH:mm:ss K")
 }
 
 PROCESS
