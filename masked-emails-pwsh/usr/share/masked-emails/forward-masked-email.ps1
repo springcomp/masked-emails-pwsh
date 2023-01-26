@@ -65,7 +65,7 @@ BEGIN
 
         ## remove the corresponding file
 
-        Remove-Item -Path $path
+        Remove-Item -Path $path -Force -WhatIf:$whatIf
     }
 
     $pos = $email.IndexOf("@")

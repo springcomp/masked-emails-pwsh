@@ -120,9 +120,9 @@ Content-Type: text/html; charset="utf-8"
 END
 {
     if (Test-Path $messagePath) {
-        Remove-Item -Path $messagePath -EA SilentlyContinue | Out-Null
+        Remove-Item -Path $messagePath -WhatIf:$whatIf -EA SilentlyContinue | Out-Null
     }
     if ($shouldDelete) {
-        Remove-Item -Path $bodyPath -EA SilentlyContinue | Out-Null
+        Remove-Item -Path $bodyPath -WhatIf:$whatIf -EA SilentlyContinue | Out-Null
     }
 }
