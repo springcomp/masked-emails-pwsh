@@ -77,9 +77,9 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 
 ## How-to Install
 
-```
-~# wget https://masked.blob.core.windows.net/debian/masked-emails-pwsh.deb
-~# dpkg -i masked-emails-pwsh.deb
+```sh
+wget https://masked.blob.core.windows.net/debian/masked-emails-pwsh.deb
+dpkg -i masked-emails-pwsh.deb
 ```
 
 **Warning**: please, do not forget to modify the mail server provider setup script as instructed to in the description above.
