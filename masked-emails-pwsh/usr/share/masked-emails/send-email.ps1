@@ -40,6 +40,9 @@ param(
     [Alias("Body")] 
     [string]$message = $null,
 
+    [Parameter(Position = 3)]
+    [string]$sender = "Masked Emails <no-reply@masked-emails.me>",
+
     [Switch]$whatIf
 )
 
@@ -101,7 +104,7 @@ BEGIN
 PROCESS
 {
     Set-Content -Path $messagePath -Value @"
-From: Masked Emails <no-reply@$domain>
+From: $sender
 To: $recipient
 Subject: $subject
 Date: $rfc822date
