@@ -1,3 +1,7 @@
+branches:
+  only:
+    - main
+
 image: ubuntu
 
 before_build:
