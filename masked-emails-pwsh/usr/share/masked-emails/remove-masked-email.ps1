@@ -1,4 +1,4 @@
-#!/usr/bin/pwsh
+#!/usr/bin/env -S pwsh -NoProfile
 
 ## Removes a mailbox from Postfix and Dovecot.
 ##

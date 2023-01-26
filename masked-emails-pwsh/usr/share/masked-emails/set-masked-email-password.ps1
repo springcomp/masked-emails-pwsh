@@ -1,4 +1,4 @@
-#!/usr/bin/pwsh
+#!/usr/bin/env -S pwsh -NoProfile
 
 ## Adds a new mailbox to Postfix and Dovecot.
 ##

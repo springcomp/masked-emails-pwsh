@@ -1,4 +1,4 @@
-#!/usr/bin/pwsh
+#!/usr/bin/env -S pwsh -NoProfile
 
 ## Forwards messages from a masked-email
 ## mailbox to the specified alternate address.

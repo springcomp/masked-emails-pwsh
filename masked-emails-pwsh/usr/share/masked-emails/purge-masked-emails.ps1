@@ -1,4 +1,4 @@
-#!/usr/bin/pwsh
+#!/usr/bin/env -S pwsh -NoProfile
 
 ## Removes all expired messages from a set of maildir-formatted
 ## mailboxes associated with the specified domain.

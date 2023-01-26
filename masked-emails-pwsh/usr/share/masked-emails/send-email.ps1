@@ -1,4 +1,4 @@
-#!/usr/bin/pwsh
+#!/usr/bin/env -S pwsh -NoProfile
 
 ## Sends an HTML message to the specified recipient.
 ## Typically used for sending an email as part of the

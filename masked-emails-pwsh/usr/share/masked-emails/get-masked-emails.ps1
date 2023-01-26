@@ -1,4 +1,4 @@
-#!/usr/bin/pwsh
+#!/usr/bin/env -S pwsh -NoProfile
 
 ## Lists all masked-emails configured mailboxes from a
 ## set of maildir-formatted mailboxes associated with
