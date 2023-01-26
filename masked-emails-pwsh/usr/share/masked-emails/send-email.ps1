@@ -90,11 +90,6 @@ BEGIN
 
     }
 
-    ## Retrieve the domain associated with the mailbox
-
-    $username = $email.Substring(0, $pos)
-    $domain = $email.Substring($pos + 1)
-
     ## Create a temporary file to format an email message
 
     $messagePath = [IO.Path]::GetTempFileName()
