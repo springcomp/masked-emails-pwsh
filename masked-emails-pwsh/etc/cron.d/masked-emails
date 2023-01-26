@@ -15,6 +15,6 @@
 SHELL=/bin/sh
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 #
-@daily          root purge-masked-emails -domain maskedbox.space
-*/10 * * * *    root forward-masked-emails -domain maskedbox.space
+@daily          root purge-masked-emails -domain masked-emails.me
+*/10 * * * *    root forward-masked-emails -domain masked-emails.me
 #
