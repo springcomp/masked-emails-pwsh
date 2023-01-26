@@ -23,51 +23,51 @@
 
 [CmdletBinding()]
 param(
-	[Parameter(Mandatory = $true, Position = 0)]
-	[string]$domain,
+    [Parameter(Mandatory = $true, Position = 0)]
+    [string]$domain,
 
-	[Parameter(Position = 1)]
-	[Alias("ConfigurationFile")]
-	[Alias("ConfigFile")]
-	[string]$config = "/etc/masked-emails.conf",
+    [Parameter(Position = 1)]
+    [Alias("ConfigurationFile")]
+    [Alias("ConfigFile")]
+    [string]$config = "/etc/masked-emails.conf",
 
-	[Switch]$whatIf
+    [Switch]$whatIf
 )
 
 BEGIN
 {
-	. /usr/share/masked-emails/scripts/Read-Configuration.ps1
-	. /usr/share/masked-emails/scripts/Add-MailLocationRootConfiguration.ps1
-	. /usr/share/masked-emails/scripts/Get-MaskedEmail.ps1
+    . /usr/share/masked-emails/scripts/Read-Configuration.ps1
+    . /usr/share/masked-emails/scripts/Add-MailLocationRootConfiguration.ps1
+    . /usr/share/masked-emails/scripts/Get-MaskedEmail.ps1
 
-	# hard-coding script location because $PSScriptRoot currently does not work
-	# github.com/PowerShell/PowerShell/issues/4217
+    # hard-coding script location because $PSScriptRoot currently does not work
+    # github.com/PowerShell/PowerShell/issues/4217
 
-	Function Get-ScriptDirectory { "/usr/local/bin" }
-	$forwardMaskedEmail = Join-Path -Path (Get-ScriptDirectory) -ChildPath "forward-masked-email"
+    Function Get-ScriptDirectory { "/usr/local/bin" }
+    $forwardMaskedEmail = Join-Path -Path (Get-ScriptDirectory) -ChildPath "forward-masked-email"
 }
 PROCESS
 {
-	$configuration = Read-Configuration -Path $config
-	$configuration["Domain"] = $domain
+    $configuration = Read-Configuration -Path $config
+    $configuration["Domain"] = $domain
 
-	Add-MailLocationRootConfiguration -Config $configuration
+    Add-MailLocationRootConfiguration -Config $configuration
 
-	$mailLocationRoot = $configuration["MailLocationRoot"]
-	$relativeUserPath = $configuration["RelativeUserPath"]
+    $mailLocationRoot = $configuration["MailLocationRoot"]
+    $relativeUserPath = $configuration["RelativeUserPath"]
 
-	Get-MaskedEmail -Root $mailLocationRoot |% {
-		$username = $_.Name
-		$address = "$($username)@$($domain)"
+    Get-MaskedEmail -Root $mailLocationRoot |% {
+        $username = $_.Name
+        $address = "$($username)@$($domain)"
 
-		Write-Verbose "forward-masked-email -Address $address"
+        Write-Verbose "forward-masked-email -Address $address"
 
-		. $forwardMaskedEmail `
-				-Address $address `
-				-WhatIf:$whatIf `
-				-Verbose:$verbose
-	}
+        . $forwardMaskedEmail `
+                -Address $address `
+                -WhatIf:$whatIf `
+                -Verbose:$verbose
+    }
 
-	Set-Content -Path "/tmp/forward-masked-emails.log" -Value "$(Get-Date): forward-masked-emails.ps1 was run."
+    Set-Content -Path "/tmp/forward-masked-emails.log" -Value "$(Get-Date): forward-masked-emails.ps1 was run."
 }
 

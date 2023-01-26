@@ -29,41 +29,41 @@
 
 [CmdletBinding()]
 param(
-	[Parameter(Mandatory = $true, Position = 1)]
-	[Alias("Address")]
-	[Alias("Username")]
-	[string]$email,
+    [Parameter(Mandatory = $true, Position = 1)]
+    [Alias("Address")]
+    [Alias("Username")]
+    [string]$email,
 
-	[Alias("ConfigurationFile")]
-	[Alias("ConfigFile")]
-	[string]$config = "/etc/masked-emails.conf",
+    [Alias("ConfigurationFile")]
+    [Alias("ConfigFile")]
+    [string]$config = "/etc/masked-emails.conf",
 
-	[Switch]$force,
-	[Switch]$whatIf
+    [Switch]$force,
+    [Switch]$whatIf
 )
 
 BEGIN
 {
-	. /usr/share/masked-emails/scripts/Read-Configuration.ps1
-	. /usr/share/masked-emails/scripts/Add-MailLocationRootConfiguration.ps1
+    . /usr/share/masked-emails/scripts/Read-Configuration.ps1
+    . /usr/share/masked-emails/scripts/Add-MailLocationRootConfiguration.ps1
 
-	$pos = $email.IndexOf("@")
-	if ($pos -eq -1){
-		Write-Host "The specified mailbox address is not a valid email address." -Foreground Red
-		Exit
-	}
+    $pos = $email.IndexOf("@")
+    if ($pos -eq -1){
+        Write-Host "The specified mailbox address is not a valid email address." -Foreground Red
+        Exit
+    }
 
-	$username = $email.Substring(0, $pos)
-	$domain = $email.Substring($pos + 1)
+    $username = $email.Substring(0, $pos)
+    $domain = $email.Substring($pos + 1)
 }
 PROCESS
 {
-	$configuration = Read-Configuration -Path $config
-	$configuration["Domain"] = $domain
+    $configuration = Read-Configuration -Path $config
+    $configuration["Domain"] = $domain
 
-	# Determine the mailbox root path
+    # Determine the mailbox root path
 
-	$root = $configuration["MailServerRoot"]
+    $root = $configuration["MailServerRoot"]
 
     $config = Join-Path -Path $root -ChildPath "config"
     $passdb = Join-Path -Path $config -ChildPath "postfix-accounts.cf"
@@ -77,28 +77,28 @@ PROCESS
         return
     }
 
-	# Remove email address
+    # Remove email address
 
     $setup = Join-Path -Path $root -ChildPath "setup.sh"
     $command = "pushd $root; $setup email del $email; popd"
 
-	if ($whatIf.IsPresent){
-		Write-Host $command
-	} else {
-		Invoke-Expression $command
-		Write-Verbose $command
-	}
+    if ($whatIf.IsPresent){
+        Write-Host $command
+    } else {
+        Invoke-Expression $command
+        Write-Verbose $command
+    }
 
-	# Remove the MailDir mailbox
+    # Remove the MailDir mailbox
 
-	$mailbox = Join-Path -Path $mailLocationRoot -ChildPath $username
-	if (Test-Path -Path $mailbox){
-		$mailboxCommand = "rm -rf `"$mailbox`""
-		if ($whatIf.IsPresent){
-			Write-Host $mailboxCommand -ForegroundColor Gray
-		} else {
-			Write-Verbose $mailboxCommand
-			Invoke-Expression $mailboxCommand
-		}
-	}
+    $mailbox = Join-Path -Path $mailLocationRoot -ChildPath $username
+    if (Test-Path -Path $mailbox){
+        $mailboxCommand = "rm -rf `"$mailbox`""
+        if ($whatIf.IsPresent){
+            Write-Host $mailboxCommand -ForegroundColor Gray
+        } else {
+            Write-Verbose $mailboxCommand
+            Invoke-Expression $mailboxCommand
+        }
+    }
 }

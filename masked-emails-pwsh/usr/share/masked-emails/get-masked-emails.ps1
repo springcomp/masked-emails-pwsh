@@ -32,62 +32,62 @@
 
 [CmdletBinding()]
 param(
-	[Parameter(Mandatory = $true, Position = 0)]
-	[string]$domain,
+    [Parameter(Mandatory = $true, Position = 0)]
+    [string]$domain,
 
-	[Switch]$detailed = $false,
-	[Switch]$nologo = $false,
+    [Switch]$detailed = $false,
+    [Switch]$nologo = $false,
 
-	[Alias("ConfigurationFile")]
-	[Alias("ConfigFile")]
-	[string]$config = "/etc/masked-emails.conf"
+    [Alias("ConfigurationFile")]
+    [Alias("ConfigFile")]
+    [string]$config = "/etc/masked-emails.conf"
 )
 
 BEGIN
 {
-	. /usr/share/masked-emails/scripts/Read-Configuration.ps1
-	. /usr/share/masked-emails/scripts/Add-MailLocationRootConfiguration.ps1
-	. /usr/share/masked-emails/scripts/Get-MaskedEmail.ps1
-	. /usr/share/masked-emails/scripts/Get-MaskedEmailSettingName.ps1
+    . /usr/share/masked-emails/scripts/Read-Configuration.ps1
+    . /usr/share/masked-emails/scripts/Add-MailLocationRootConfiguration.ps1
+    . /usr/share/masked-emails/scripts/Get-MaskedEmail.ps1
+    . /usr/share/masked-emails/scripts/Get-MaskedEmailSettingName.ps1
 }
 
 PROCESS
 {
-	if (-not $nologo.IsPresent){
-		Write-Host "Retrieving masked-email addresses for domain ($domain)..." -ForegroundColor Cyan
-	}
+    if (-not $nologo.IsPresent){
+        Write-Host "Retrieving masked-email addresses for domain ($domain)..." -ForegroundColor Cyan
+    }
 
-	$configuration = Read-Configuration -Path $config
-	$configuration["Domain"] = $domain
+    $configuration = Read-Configuration -Path $config
+    $configuration["Domain"] = $domain
 
-	# Determine the mailbox root path
-	# And the user-specific relative path containing messages
+    # Determine the mailbox root path
+    # And the user-specific relative path containing messages
 
-	Add-MailLocationRootConfiguration -Config $configuration
+    Add-MailLocationRootConfiguration -Config $configuration
 
-	$mailLocationRoot = $configuration["MailLocationRoot"]
-	$relativeUserPath = $configuration["RelativeUserPath"]
+    $mailLocationRoot = $configuration["MailLocationRoot"]
+    $relativeUserPath = $configuration["RelativeUserPath"]
 
-	Write-Verbose "Looking up mailboxes in $($mailLocationRoot) folder."
+    Write-Verbose "Looking up mailboxes in $($mailLocationRoot) folder."
 
-	# Iterate over all user mailboxes
-	# https://cr.yp.to/proto/maildir.html
+    # Iterate over all user mailboxes
+    # https://cr.yp.to/proto/maildir.html
 
-	Get-MaskedEmail -Root $mailLocationRoot |% {
-		$mailbox = $_.Name
-		$address = "$($mailbox)@$($domain)"
+    Get-MaskedEmail -Root $mailLocationRoot |% {
+        $mailbox = $_.Name
+        $address = "$($mailbox)@$($domain)"
 
-		Write-Output $address
-		if ($detailed.IsPresent){
-			$mailboxRoot = Join-Path -Path $mailLocationRoot -ChildPath $mailbox
-			$setting = Join-Path -Path $mailboxRoot -ChildPath (Get-MaskedEmailSettingName)
-			Get-Content -Path $setting -Raw
-		}
-	}
+        Write-Output $address
+        if ($detailed.IsPresent){
+            $mailboxRoot = Join-Path -Path $mailLocationRoot -ChildPath $mailbox
+            $setting = Join-Path -Path $mailboxRoot -ChildPath (Get-MaskedEmailSettingName)
+            Get-Content -Path $setting -Raw
+        }
+    }
 
-	if (-not $nologo.IsPresent){
-		Write-Host "Retrieving masked-email addresses for domain ($domain)... Done." -ForegroundColor Cyan
-	}
+    if (-not $nologo.IsPresent){
+        Write-Host "Retrieving masked-email addresses for domain ($domain)... Done." -ForegroundColor Cyan
+    }
 }
 
 # vi: set tabstop=4

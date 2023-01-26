@@ -47,106 +47,106 @@
 
 [CmdletBinding()]
 param(
-	[Parameter(Mandatory = $true, Position = 0)]
-	[Alias("Address")]
-	[Alias("Username")]
-	[string]$email,
+    [Parameter(Mandatory = $true, Position = 0)]
+    [Alias("Address")]
+    [Alias("Username")]
+    [string]$email,
 
-	[Parameter(Position = 1)]
-	[Alias("AlternateAddress")]
-	[string]$forwardTo = $null,
+    [Parameter(Position = 1)]
+    [Alias("AlternateAddress")]
+    [string]$forwardTo = $null,
 
-	[Switch]$enable = $false,
-	[Switch]$disable = $false,
+    [Switch]$enable = $false,
+    [Switch]$disable = $false,
 
-	[Alias("ConfigurationFile")]
-	[Alias("ConfigFile")]
-	[string]$config = "/etc/masked-emails.conf",
+    [Alias("ConfigurationFile")]
+    [Alias("ConfigFile")]
+    [string]$config = "/etc/masked-emails.conf",
 
-	[Switch]$whatIf
+    [Switch]$whatIf
 )
 
 BEGIN
 {
-	. /usr/share/masked-emails/scripts/Read-Configuration.ps1
-	. /usr/share/masked-emails/scripts/Add-MailLocationRootConfiguration.ps1
-	. /usr/share/masked-emails/scripts/Get-MaskedEmailSettingName.ps1
+    . /usr/share/masked-emails/scripts/Read-Configuration.ps1
+    . /usr/share/masked-emails/scripts/Add-MailLocationRootConfiguration.ps1
+    . /usr/share/masked-emails/scripts/Get-MaskedEmailSettingName.ps1
 
-	if ($disable.IsPresent -and $enable.IsPresent){
-		Write-Host "Only one of -Enable, -Disable or -ForwardTo flag must be present." -Foreground Red
-		return
-	}
-	if ($forwardTo -ne $null -and $forwardTo.Length -gt 0){
-		if (-not $disable.IsPresent){
-			$enable = $true
-		}
-	}
+    if ($disable.IsPresent -and $enable.IsPresent){
+        Write-Host "Only one of -Enable, -Disable or -ForwardTo flag must be present." -Foreground Red
+        return
+    }
+    if ($forwardTo -ne $null -and $forwardTo.Length -gt 0){
+        if (-not $disable.IsPresent){
+            $enable = $true
+        }
+    }
 
-	$pos = $email.IndexOf("@")
-	if ($pos -eq -1){
-		Write-Host "The specified mailbox address is not a valid email address." -Foreground Red
-		return
-	}
+    $pos = $email.IndexOf("@")
+    if ($pos -eq -1){
+        Write-Host "The specified mailbox address is not a valid email address." -Foreground Red
+        return
+    }
 
-	$username = $email.Substring(0, $pos)
-	$domain = $email.Substring($pos + 1)
+    $username = $email.Substring(0, $pos)
+    $domain = $email.Substring($pos + 1)
 }
 PROCESS
 {
-	$configuration = Read-Configuration -Path $config
-	$configuration["Domain"] = $domain
+    $configuration = Read-Configuration -Path $config
+    $configuration["Domain"] = $domain
 
-	# Determine the mailbox root path
-	# And the user-specific relative path containing messages
+    # Determine the mailbox root path
+    # And the user-specific relative path containing messages
 
-	Add-MailLocationRootConfiguration -Config $configuration
+    Add-MailLocationRootConfiguration -Config $configuration
 
-	$mailLocationRoot = $configuration["MailLocationRoot"]
-	$relativeUserPath = $configuration["RelativeUserPath"]
+    $mailLocationRoot = $configuration["MailLocationRoot"]
+    $relativeUserPath = $configuration["RelativeUserPath"]
 
-	$mailboxRoot = Join-Path -Path $mailLocationRoot -ChildPath $username
-	if (-not (Test-Path -Path $mailboxRoot)){
-		New-Item -ItemType Directory -Path $mailboxRoot | Out-Null
-		$owner = $configuration["UserID"]
-		Invoke-Expression "chown -R $owner `"$mailboxRoot`""
-		Invoke-Expression "chmod 700 `"$mailboxRoot`""
-	}
+    $mailboxRoot = Join-Path -Path $mailLocationRoot -ChildPath $username
+    if (-not (Test-Path -Path $mailboxRoot)){
+        New-Item -ItemType Directory -Path $mailboxRoot | Out-Null
+        $owner = $configuration["UserID"]
+        Invoke-Expression "chown -R $owner `"$mailboxRoot`""
+        Invoke-Expression "chmod 700 `"$mailboxRoot`""
+    }
 
-	$maskedEmail = Join-Path -Path $mailboxRoot -ChildPath (Get-MaskedEmailSettingName)
-	if (Test-Path -Path $maskedEmail){
-		$setting = Get-Content -Path $maskedEmail | ConvertFrom-JSON
-		$setting."forwarding-enabled" = (-not $disable.IsPresent)
-		if ($forwardTo -ne $null -and $forwardTo.Length -gt 0){
-			$setting."forward-to" = $forwardTo
-		}
-	} else {
-		$setting = New-Object -Type PSObject
-		$setting | Add-Member -MemberType NoteProperty -Name "mailbox" -Value $email
-		$setting | Add-Member -MemberType NoteProperty -Name "forwarding-enabled" -Value (-not $disable.IsPresent)
-		$setting | Add-Member -MemberType NoteProperty -Name "forward-to" -Value $forwardTo
-	}
+    $maskedEmail = Join-Path -Path $mailboxRoot -ChildPath (Get-MaskedEmailSettingName)
+    if (Test-Path -Path $maskedEmail){
+        $setting = Get-Content -Path $maskedEmail | ConvertFrom-JSON
+        $setting."forwarding-enabled" = (-not $disable.IsPresent)
+        if ($forwardTo -ne $null -and $forwardTo.Length -gt 0){
+            $setting."forward-to" = $forwardTo
+        }
+    } else {
+        $setting = New-Object -Type PSObject
+        $setting | Add-Member -MemberType NoteProperty -Name "mailbox" -Value $email
+        $setting | Add-Member -MemberType NoteProperty -Name "forwarding-enabled" -Value (-not $disable.IsPresent)
+        $setting | Add-Member -MemberType NoteProperty -Name "forward-to" -Value $forwardTo
+    }
 
-	$json = (ConvertTo-JSON -InputObject $setting)
-	$message = "$maskedEmail --> $json"
-	if ($whatIf.IsPresent){
-		Write-Host $message -ForegroundColor Gray
-	} else {
-		Write-Verbose $message
-		Set-Content -Path $maskedEmail -Value $json
-	}
+    $json = (ConvertTo-JSON -InputObject $setting)
+    $message = "$maskedEmail --> $json"
+    if ($whatIf.IsPresent){
+        Write-Host $message -ForegroundColor Gray
+    } else {
+        Write-Verbose $message
+        Set-Content -Path $maskedEmail -Value $json
+    }
 
-	# Send a confirmation email
+    # Send a confirmation email
 
-	if ($enable) {
+    if ($enable) {
 
-		$message = "<html><body><p>Your address '$email' is now active.</p></body></html>"
-		$body = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($message))
+        $message = "<html><body><p>Your address '$email' is now active.</p></body></html>"
+        $body = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($message))
 
-		. /usr/share/masked-emails/send-email.ps1 `
-			-address $email `
-			-subject "$email is active!" `
-			-message $body	
-	}
+        . /usr/share/masked-emails/send-email.ps1 `
+            -address $email `
+            -subject "$email is active!" `
+            -message $body	
+    }
 
 }
 

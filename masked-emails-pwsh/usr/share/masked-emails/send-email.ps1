@@ -23,10 +23,10 @@
 
 [CmdletBinding()]
 param(
-	[Parameter(Mandatory = $true, Position = 0)]
-	[Alias("Address")]
-	[Alias("To")]
-	[string]$recipient,
+    [Parameter(Mandatory = $true, Position = 0)]
+    [Alias("Address")]
+    [Alias("To")]
+    [string]$recipient,
 
     [Parameter(Mandatory = $true, Position = 1)]
     [string]$subject,
@@ -40,30 +40,30 @@ param(
     [Alias("Body")] 
     [string]$message = $null,
 
-	[Switch]$whatIf
+    [Switch]$whatIf
 )
 
 BEGIN
 {
-	Function Send-Message{
-		param(
-			[string]$path,
-			[string]$forwardTo,
+    Function Send-Message{
+        param(
+            [string]$path,
+            [string]$forwardTo,
             [switch]$whatIf
-		)
+        )
 
-		## format the message
+        ## format the message
 
-		## send the message
+        ## send the message
 
-		$sendCommand = "cat `"$($path)`" | msmtp $($forwardTo)"
-		if ($whatIf.IsPresent){
-			Write-Host $sendCommand
-		} else {
-			Write-Verbose $sendCommand
-			Invoke-Expression $sendCommand
-		}
-	}
+        $sendCommand = "cat `"$($path)`" | msmtp $($forwardTo)"
+        if ($whatIf.IsPresent){
+            Write-Host $sendCommand
+        } else {
+            Write-Verbose $sendCommand
+            Invoke-Expression $sendCommand
+        }
+    }
 
     ## Save the HTML to a temporary file
 
@@ -81,16 +81,16 @@ BEGIN
     } else {
 
         if (-not (Test-Path $bodyPath)){
-	    	Write-Host "The specified email message path does not exist." -Foreground Red
-	    	Exit
+            Write-Host "The specified email message path does not exist." -Foreground Red
+            Exit
         }
 
     }
 
     ## Retrieve the domain associated with the mailbox
 
-	$username = $email.Substring(0, $pos)
-	$domain = $email.Substring($pos + 1)
+    $username = $email.Substring(0, $pos)
+    $domain = $email.Substring($pos + 1)
 
     ## Create a temporary file to format an email message
 

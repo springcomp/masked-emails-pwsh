@@ -40,152 +40,152 @@
 
 [CmdletBinding()]
 param(
-	[Parameter(Mandatory = $true, Position = 0)]
-	[string]$domain,
+    [Parameter(Mandatory = $true, Position = 0)]
+    [string]$domain,
 
-	[Parameter(Position = 1)]
-	[Alias("ConfigurationFile")]
-	[Alias("ConfigFile")]
-	[string]$config = "/etc/masked-emails.conf",
+    [Parameter(Position = 1)]
+    [Alias("ConfigurationFile")]
+    [Alias("ConfigFile")]
+    [string]$config = "/etc/masked-emails.conf",
 
-	[Switch]$whatIf
+    [Switch]$whatIf
 )
 
 BEGIN
 {
-	. /usr/share/masked-emails/scripts/Read-Configuration.ps1
-	. /usr/share/masked-emails/scripts/Add-MailLocationRootConfiguration.ps1
-	. /usr/share/masked-emails/scripts/Get-MaskedEmail.ps1
-	. /usr/share/masked-emails/scripts/Is-MailDirMessage.ps1
-	. /usr/share/masked-emails/scripts/Get-MailDirMessageTimestamp.ps1
+    . /usr/share/masked-emails/scripts/Read-Configuration.ps1
+    . /usr/share/masked-emails/scripts/Add-MailLocationRootConfiguration.ps1
+    . /usr/share/masked-emails/scripts/Get-MaskedEmail.ps1
+    . /usr/share/masked-emails/scripts/Is-MailDirMessage.ps1
+    . /usr/share/masked-emails/scripts/Get-MailDirMessageTimestamp.ps1
 
-	Function ConvertFrom-SleepDuration{
-		[CmdletBinding()]
-		param([string]$duration)
-		if ($duration -eq "never"){
-			Write-Output [TimeSpan]::MaxValue	
-		} else {
-			[regex] $pattern = "^(?<number>[1-9][0-9]*(?:\.[0-9]*)?)(?<unit>s|m|h|d)?$"
-			$match = $pattern.Match($duration)
-			if ($match.Success){
-				$unit = "s"
-				if ($match.Groups["unit"].Value.Length -gt 0){
-					$unit = $match.Groups["unit"].Value
-				}
+    Function ConvertFrom-SleepDuration{
+        [CmdletBinding()]
+        param([string]$duration)
+        if ($duration -eq "never"){
+            Write-Output [TimeSpan]::MaxValue	
+        } else {
+            [regex] $pattern = "^(?<number>[1-9][0-9]*(?:\.[0-9]*)?)(?<unit>s|m|h|d)?$"
+            $match = $pattern.Match($duration)
+            if ($match.Success){
+                $unit = "s"
+                if ($match.Groups["unit"].Value.Length -gt 0){
+                    $unit = $match.Groups["unit"].Value
+                }
 
-				# it is safe to use [Double]::Parse
-				# because the format of the number
-				# is already validated by the regex
+                # it is safe to use [Double]::Parse
+                # because the format of the number
+                # is already validated by the regex
 
-				$number = $match.Groups["number"].Value
-				$float = [Double]::Parse($number)
+                $number = $match.Groups["number"].Value
+                $float = [Double]::Parse($number)
 
-				$timeSpan = [TimeSpan]::Zero
+                $timeSpan = [TimeSpan]::Zero
 
-				if ($unit -eq "s") { $timeSpan = $timeSpan.Add([TimeSpan]::FromSeconds($float)) }
-				if ($unit -eq "m") { $timeSpan = $timeSpan.Add([TimeSpan]::FromMinutes($float)) }
-				if ($unit -eq "h") { $timeSpan = $timeSpan.Add([TimeSpan]::FromHours($float)) }
-				if ($unit -eq "d") { $timeSpan = $timeSpan.Add([TimeSpan]::FromDays($float)) }
+                if ($unit -eq "s") { $timeSpan = $timeSpan.Add([TimeSpan]::FromSeconds($float)) }
+                if ($unit -eq "m") { $timeSpan = $timeSpan.Add([TimeSpan]::FromMinutes($float)) }
+                if ($unit -eq "h") { $timeSpan = $timeSpan.Add([TimeSpan]::FromHours($float)) }
+                if ($unit -eq "d") { $timeSpan = $timeSpan.Add([TimeSpan]::FromDays($float)) }
 
-				Write-Output $timeSpan
-				
-			} else {
-				throw "Syntax error: invalid value for configuration parameter 'AutoExpire'."
-			}
-		}
-	}
+                Write-Output $timeSpan
+                
+            } else {
+                throw "Syntax error: invalid value for configuration parameter 'AutoExpire'."
+            }
+        }
+    }
 
-	Function Format-TimeSpan{
-		[CmdletBinding()]
-		param([TimeSpan] $timeSpan)
+    Function Format-TimeSpan{
+        [CmdletBinding()]
+        param([TimeSpan] $timeSpan)
 
-		if ($timeSpan -gt [TimeSpan]::FromDays(1.0)){
-			$days = $timeSpan.ToString("dd")
-			Write-Output "$($days) days ago"
-			return
-		}
-		if ($timeSpan -gt [TimeSpan]::FromHours(1.0)){
-			$hours = $timeSpan.ToString("hh")
-			Write-Output "$($hours) hours ago"
-			return
-		}
-		if ($timeSpan -gt [TimeSpan]::FromMinutes(1.0)){
-			$minutes = $timeSpan.ToString("mm")
-			Write-Output "$($minutes) minutes ago"
-			return
-		}
-		if ($timeSpan -gt [TimeSpan]::FromSeconds(1.0)){
-			$seconds = $timeSpan.ToString("ss")
-			Write-Output "$($seconds) seconds ago"
-			return
-		}
-	}
+        if ($timeSpan -gt [TimeSpan]::FromDays(1.0)){
+            $days = $timeSpan.ToString("dd")
+            Write-Output "$($days) days ago"
+            return
+        }
+        if ($timeSpan -gt [TimeSpan]::FromHours(1.0)){
+            $hours = $timeSpan.ToString("hh")
+            Write-Output "$($hours) hours ago"
+            return
+        }
+        if ($timeSpan -gt [TimeSpan]::FromMinutes(1.0)){
+            $minutes = $timeSpan.ToString("mm")
+            Write-Output "$($minutes) minutes ago"
+            return
+        }
+        if ($timeSpan -gt [TimeSpan]::FromSeconds(1.0)){
+            $seconds = $timeSpan.ToString("ss")
+            Write-Output "$($seconds) seconds ago"
+            return
+        }
+    }
 
-	$MASKED_EMAIL_JSON = "masked-email.json"
+    $MASKED_EMAIL_JSON = "masked-email.json"
 }
 
 PROCESS
 {
-	Write-Host "Removing expired messages from domain ($domain)..." -ForegroundColor Cyan
+    Write-Host "Removing expired messages from domain ($domain)..." -ForegroundColor Cyan
 
-	$configuration = Read-Configuration -Path $config
-	$configuration["Domain"] = $domain
+    $configuration = Read-Configuration -Path $config
+    $configuration["Domain"] = $domain
 
-	# Initialize the AutoExpire TimeSpan
+    # Initialize the AutoExpire TimeSpan
 
-	$autoExpireDelay = $configuration["AutoExpire"]
-	$autoExpireDuration = ConvertFrom-SleepDuration -Duration $autoExpireDelay
-	$utcNow = [DateTime]::UtcNow
+    $autoExpireDelay = $configuration["AutoExpire"]
+    $autoExpireDuration = ConvertFrom-SleepDuration -Duration $autoExpireDelay
+    $utcNow = [DateTime]::UtcNow
 
-	# Determine the mailbox root path
-	# And the user-specific relative path containing messages
+    # Determine the mailbox root path
+    # And the user-specific relative path containing messages
 
-	Add-MailLocationRootConfiguration -Config $configuration
+    Add-MailLocationRootConfiguration -Config $configuration
 
-	$mailLocationRoot = $configuration["MailLocationRoot"]
-	$relativeUserPath = $configuration["RelativeUserPath"]
+    $mailLocationRoot = $configuration["MailLocationRoot"]
+    $relativeUserPath = $configuration["RelativeUserPath"]
 
-	Write-Verbose "Looking up messages in $($mailLocationRoot) folder."
+    Write-Verbose "Looking up messages in $($mailLocationRoot) folder."
 
-	# Iterate over all user mailboxes and messages
-	# https://cr.yp.to/proto/maildir.html
+    # Iterate over all user mailboxes and messages
+    # https://cr.yp.to/proto/maildir.html
 
-	$ae = $configuration["AutoExpire"]
+    $ae = $configuration["AutoExpire"]
 
-	Get-MaskedEmail -Root $mailLocationRoot |% {
-		$mailboxRoot = $_.Fullname
-		Get-ChildItem -Path $mailboxRoot -Recurse |? {
-			Is-MailDirMessage -Name $_.Name } |% {
-	
-			$path = $_.FullName
-			$name = $_.Name
-	
-			$receivedUtc = Get-MailDirMessageTimestamp -Name $name
-			$sinceThen = $utcNow - $receivedUtc
-	
-			$receivedUtcText = $receivedUtc.ToString("yyyy-MM-ddTHH:mm:ss.fff")
-			$sinceThenText = Format-TimeSpan -TimeSpan $sinceThen
-	
-			$relativePath = $path.Replace($mailLocationRoot, "`$(DOMAIN)")
-	
-			if ($sinceThen -ge $autoExpireDuration){
-				$reason = "Removing message '$($relativePath)', received more than $($sinceThenText) on $($receivedUtcText), which is more than the 'AutoExpired' duration ($ae)."
-				if ($whatIf.IsPresent){
-					Write-Host $reason -ForegroundColor Gray
-				} else {
-					Remove-Item -Path $path -Force
-					Write-Verbose $reason
-				}
-			}
-			else{
-				$aeText = Format-TimeSpan -TimeSpan $autoExpireDuration
-				Write-Verbose "Keeping message '$($relativePath)' because it was received on $($receivedUtcText), less than $aeText as specified by the 'AutoExpire' duration."
-			}
-		}
-	}
+    Get-MaskedEmail -Root $mailLocationRoot |% {
+        $mailboxRoot = $_.Fullname
+        Get-ChildItem -Path $mailboxRoot -Recurse |? {
+            Is-MailDirMessage -Name $_.Name } |% {
+    
+            $path = $_.FullName
+            $name = $_.Name
+    
+            $receivedUtc = Get-MailDirMessageTimestamp -Name $name
+            $sinceThen = $utcNow - $receivedUtc
+    
+            $receivedUtcText = $receivedUtc.ToString("yyyy-MM-ddTHH:mm:ss.fff")
+            $sinceThenText = Format-TimeSpan -TimeSpan $sinceThen
+    
+            $relativePath = $path.Replace($mailLocationRoot, "`$(DOMAIN)")
+    
+            if ($sinceThen -ge $autoExpireDuration){
+                $reason = "Removing message '$($relativePath)', received more than $($sinceThenText) on $($receivedUtcText), which is more than the 'AutoExpired' duration ($ae)."
+                if ($whatIf.IsPresent){
+                    Write-Host $reason -ForegroundColor Gray
+                } else {
+                    Remove-Item -Path $path -Force
+                    Write-Verbose $reason
+                }
+            }
+            else{
+                $aeText = Format-TimeSpan -TimeSpan $autoExpireDuration
+                Write-Verbose "Keeping message '$($relativePath)' because it was received on $($receivedUtcText), less than $aeText as specified by the 'AutoExpire' duration."
+            }
+        }
+    }
 
-	Add-Content -Path "/tmp/purge-masked-emails.log" -Value "$(Get-Date): purge-masked-emails.ps1 was run."
-	Write-Host "Removing expired messages from domain ($domain)... Done." -ForegroundColor Cyan
+    Add-Content -Path "/tmp/purge-masked-emails.log" -Value "$(Get-Date): purge-masked-emails.ps1 was run."
+    Write-Host "Removing expired messages from domain ($domain)... Done." -ForegroundColor Cyan
 }
 
 # vi: set tabstop=4

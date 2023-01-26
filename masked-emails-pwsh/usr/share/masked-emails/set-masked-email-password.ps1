@@ -86,39 +86,39 @@ PROCESS {
     $pwd = "$($email)|{SSHA512}$($passwordHash)"
     $pwdMessage = "$passdb -> `"$pwd`"";
 
-	$passdbTemp = "/tmp/postfix-accounts.cf"
+    $passdbTemp = "/tmp/postfix-accounts.cf"
 
-	Get-Content -Path $passdb |? {
-		if ($_.StartsWith($email)){
-			if ($whatIf.IsPresent){
-				Write-Host $pwdMessage -Foreground Gray
-			} else {
+    Get-Content -Path $passdb |? {
+        if ($_.StartsWith($email)){
+            if ($whatIf.IsPresent){
+                Write-Host $pwdMessage -Foreground Gray
+            } else {
                 Add-Content -Path $passdbTemp -Value $pwd
-				Write-Verbose $pwdMessage
-			}
-			return $false
-		} else {
-			return $true
-		}
-	} |% {
-		if (-not $whatIf.IsPresent){
-			Add-Content -Path $passdbTemp -Value $_
-		}
-	}
+                Write-Verbose $pwdMessage
+            }
+            return $false
+        } else {
+            return $true
+        }
+    } |% {
+        if (-not $whatIf.IsPresent){
+            Add-Content -Path $passdbTemp -Value $_
+        }
+    }
 
-	if (-not $whatIf.IsPresent){
-		Move-Item -Path $passdbTemp -Destination $passdb -Force
-	}
+    if (-not $whatIf.IsPresent){
+        Move-Item -Path $passdbTemp -Destination $passdb -Force
+    }
 
     if ($force.IsPresent) {
 
-	# Restart mail server
+    # Restart mail server
 
         $root = $configuration["MailServerRoot"]
         $compose = Join-Path -Path $root -ChildPath "docker-compose.yml"
         $up = "pushd $root; /usr/local/bin/docker-compose --file $compose up --detach; popd"
         $down = "pushd $root; /usr/local/bin/docker-compose --file $compose down; popd"
-	
+    
         if ($whatIf.IsPresent) {
             Write-Host $down
             Write-Host $up

@@ -1,3 +1,3 @@
 Function Get-MaskedEmailSettingName {
-	"masked-email.json"
+    "masked-email.json"
 }
