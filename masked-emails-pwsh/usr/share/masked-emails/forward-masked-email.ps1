@@ -45,7 +45,23 @@ BEGIN
     . /usr/share/masked-emails/scripts/Get-MaskedEmailSettingName.ps1
     . /usr/share/masked-emails/scripts/Is-MailDirMessage.ps1
 
-    Function Forward-Message{
+    Function Get-ExeFileExtension {
+        return $PSVersionTable.Platform -eq "WindowsNT" ? ".exe" : ""
+    }
+
+    Function Has-Command {
+        param([string]$name)
+
+        $exeName = "$($name)$(Get-ExeFileExtension)"
+            $has = $Env:PATH.Split([IO.Path]::PathSeparator) |? {
+                $command = Join-Path -Path $_ -ChildPath $exeName
+                Test-Path -Path $command
+            }
+
+        return ($null -ne $has)
+    }
+
+    Function Forward-Message {
         param(
             [string]$path,
             [string]$forwardTo
@@ -55,7 +71,10 @@ BEGIN
 
         ## send the message
 
-        $forwardCommand = "cat `"$($path)`" | msmtp $($forwardTo)"
+        $forwardCommand = (Has-Command -Name "make-forwarded-email") `
+            ? "make-forwarded-email $($forwardTo) `"$($path)`" | msmtp $($forwardTo)" `
+            : "cat `"$($path)`" | msmtp $($forwardTo)"
+
         if ($whatIf.IsPresent){
             Write-Host $forwardCommand
         } else {
@@ -65,7 +84,7 @@ BEGIN
 
         ## remove the corresponding file
 
-        Remove-Item -Path $path -Force -WhatIf:$whatIf
+	    Remove-Item -Path $path -Force -WhatIf:$whatIf
     }
 
     $pos = $email.IndexOf("@")
