@@ -1,3 +1,5 @@
+> **Deprecated** This repository is deprecated in favor of a more robust [SimpleLogin](https://simplelogin.io/) solution.
+
 This repository contains a set of PowerShell scripts designed to work with
 a custom mail server in order to implement "masked emails".
 
